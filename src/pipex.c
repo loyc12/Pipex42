@@ -6,7 +6,7 @@
 /*   By: llord <llord@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/05 15:05:24 by llord             #+#    #+#             */
-/*   Updated: 2022/12/12 12:49:07 by llord            ###   ########.fr       */
+/*   Updated: 2022/12/12 13:10:36 by llord            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -107,8 +107,23 @@ void	free_all(t_data *d)
 
 
 
+void	exec_with_paths(t_data *d, char *cmd)
+{
+	char	**cmdargs;
+	char	*cmdpath;
+	int		i;
 
+	cmdargs = ft_split(cmd, ' ');
 
+	i = -1;
+	while (d->paths[++i])
+	{
+		cmdpath = add_to_path(d->paths[i], '/', cmdargs[0]);	//DEFINE ME
+		execve(cmdpath, cmdargs, d->envp);
+		free(cmdpath);
+	}
+
+}
 void	exec_first_cmd(t_data *d)
 {
 
@@ -119,7 +134,7 @@ void	exec_first_cmd(t_data *d)
 	close(d->outpipe);
 	close(d->infile);
 
-	//execve(	, d->cmd1, d->envp);
+	exec_with_paths(d, d->cmd1);
 	exit(EXIT_FAILURE);
 }
 
@@ -134,7 +149,7 @@ void	exec_second_cmd(t_data *d)
 	close(d->inpipe);
 	close(d->outfile);
 
-	//execve(	, d->cmd2, d->envp);
+	exec_with_paths(d, d->cmd2);
 	exit(EXIT_FAILURE);
 }
 
