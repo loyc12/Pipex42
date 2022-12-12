@@ -6,7 +6,7 @@
 /*   By: llord <llord@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/05 15:05:28 by llord             #+#    #+#             */
-/*   Updated: 2022/12/12 12:16:40 by llord            ###   ########.fr       */
+/*   Updated: 2022/12/12 12:47:28 by llord            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,10 @@
 # include <errno.h>
 # include <sys/types.h>
 # include <sys/wait.h>
+
+# ifndef SPLIT_SIZE
+#  define SPLIT_SIZE 31
+# endif
 
 typedef enum e_state
 {
@@ -44,6 +48,7 @@ typedef struct s_data
 
 	int		*statusInfo;
 	char	**paths;
+	char	**envp;
 
 	int		state;
 

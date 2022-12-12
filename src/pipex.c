@@ -6,7 +6,7 @@
 /*   By: llord <llord@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/05 15:05:24 by llord             #+#    #+#             */
-/*   Updated: 2022/12/12 12:19:49 by llord            ###   ########.fr       */
+/*   Updated: 2022/12/12 12:49:07 by llord            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,15 +35,13 @@ char	**ft_split(char *str, char c)
 	int		s;
 	int		n;
 
-	printf("\nAll Paths : %s\n\n", str);				//DEBUG
-
 	n = count_sections(str, c);
 	output = calloc(n + 1, sizeof(char *));				//USE FT_CALLOC
 
 	s = -1;
 	i = -1;
 	j = 0;
-	while (str[++s]) // && j < n)
+	while (str[++s] && j < n)							// j < n superfluous?
 	{
 		if (str[s] == c)
 		{
@@ -53,7 +51,7 @@ char	**ft_split(char *str, char c)
 		else
 		{
 			if (i < 0)
-				output[j] = calloc(31, sizeof(char));	//USE FT_CALLOC
+				output[j] = calloc(SPLIT_SIZE, sizeof(char));	//USE FT_CALLOC
 			output[j][++i] = str[s];
 		}
 	}
@@ -61,17 +59,19 @@ char	**ft_split(char *str, char c)
 
 }
 
-char	**get_paths(char **envp)
+void	get_paths(t_data *d)
 {
-	char	**output;
 	int		i;
 
 	i = 0;
-	while (envp[i][0] != 'P' || envp[i][1] != 'A')
+	while (d->envp[i][0] != 'P' || d->envp[i][1] != 'A')
 		i++;
-	output = ft_split(envp[i] + 5, ':');
+	d->paths = ft_split(d->envp[i] + 5, ':');
 
-	return (output);
+	i = -1;											//DEBUG
+	while (d->paths[++i])							//
+		printf("path #%i : %s\n", i, d->paths[i]);	//
+	printf("\n");									//
 }
 
 void	initiate_data(t_data *d, char **argv, char **envp)
@@ -83,53 +83,9 @@ void	initiate_data(t_data *d, char **argv, char **envp)
 		d->cmd1 = argv[2];
 		d->cmd2 = argv[3];
 		d->outfile = open(argv[4], O_CREAT | O_RDWR);
-		d->paths = get_paths(envp);
-}
 
-void	exec_first_cmd(t_data *d)
-{
-	dup2(d->infile, STDIN_FILENO);
-	dup2(d->outpipe, STDOUT_FILENO);
-	close(d->inpipe);
-	close(d->infile);
-
-	//execve(		);
-	exit(EXIT_FAILURE);
-}
-
-void	exec_second_cmd(t_data *d)
-{
-	waitpid(-1, d->statusInfo, 0);
-
-	dup2(d->outfile, STDOUT_FILENO);
-	dup2(d->inpipe, STDIN_FILENO);
-	close(d->outpipe);
-	close(d->outfile);
-
-	//execve(		);
-	exit(EXIT_FAILURE);
-}
-
-void	pipex(t_data *d)
-{
-	int	pipends[2];
-	pid_t	isParent;
-
-	pipends[0] = d->inpipe;
-	pipends[1] = d->outpipe;
-	pipe(pipends);
-	isParent = fork();
-	if (isParent < 0)
-		return (perror("Fork: "));
-
-	printf("we got here\n");							//DEBUG
-
-	if (!isParent)
-		exec_first_cmd(d);
-	else
-		exec_second_cmd(d);
-
-	printf("we got there\n");							//DEBUG
+		d->envp = envp;
+		get_paths(d);
 }
 
 void	free_all(t_data *d)
@@ -146,6 +102,65 @@ void	free_all(t_data *d)
 	}
 }
 
+
+
+
+
+
+
+
+void	exec_first_cmd(t_data *d)
+{
+
+	printf("Executing cmd #1\n\n");						//DEBUG
+
+	dup2(d->infile, STDIN_FILENO);
+	dup2(d->inpipe, STDOUT_FILENO);
+	close(d->outpipe);
+	close(d->infile);
+
+	//execve(	, d->cmd1, d->envp);
+	exit(EXIT_FAILURE);
+}
+
+void	exec_second_cmd(t_data *d)
+{
+	waitpid(-1, d->statusInfo, 0);
+
+	printf("Executing cmd #2\n\n");						//DEBUG
+
+	dup2(d->outfile, STDOUT_FILENO);
+	dup2(d->outpipe, STDIN_FILENO);
+	close(d->inpipe);
+	close(d->outfile);
+
+	//execve(	, d->cmd2, d->envp);
+	exit(EXIT_FAILURE);
+}
+
+void	pipex(t_data *d)
+{
+	int	pipends[2];
+	pid_t	isParent;
+
+	pipends[1] = d->inpipe;
+	pipends[0] = d->outpipe;
+	pipe(pipends);
+
+	isParent = fork();
+	if (isParent < 0)
+		return (perror("Fork: "));
+
+	printf("Lauching Process #%i\n\n", (int)isParent);	//DEBUG
+
+	if (!isParent)
+		exec_first_cmd(d);
+	else
+		exec_second_cmd(d);
+
+	printf("we got there\n");							//DEBUG
+}
+
 int	main(int argc, char **argv, char **envp)
 {
 	t_data	d;
@@ -156,12 +171,8 @@ int	main(int argc, char **argv, char **envp)
 
 		if (d.infile < 0 || d.outfile < 0)
 			d.state = STATE_ERR_FILE;
-
-		int	i = -1;										//DEBUG
-		while (d.paths[++i])							//
-			printf("path #%i : %s\n", i, d.paths[i]);	//
-
-		pipex(&d);
+		else
+			pipex(&d);
 	}
 	else
 		d.state = STATE_ERR_INPUT;
