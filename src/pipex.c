@@ -6,7 +6,7 @@
 /*   By: llord <llord@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/05 15:05:24 by llord             #+#    #+#             */
-/*   Updated: 2022/12/12 13:10:36 by llord            ###   ########.fr       */
+/*   Updated: 2022/12/12 15:05:43 by llord            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,16 @@ int	count_sections(char *str, char c)
 			n++;
 	}
 	return (n);
+}
+
+int	lento(char *s, char c)
+{
+	int	i;
+
+	i = 0;
+	while (s[i] && s[i] != c)
+		i++;
+	return (i);
 }
 
 char	**ft_split(char *str, char c)
@@ -51,12 +61,33 @@ char	**ft_split(char *str, char c)
 		else
 		{
 			if (i < 0)
-				output[j] = calloc(SPLIT_SIZE, sizeof(char));	//USE FT_CALLOC
+				output[j] = calloc(lento(&str[s], c), sizeof(char));	//USE FT_CALLOC
 			output[j][++i] = str[s];
 		}
 	}
 	return (output);
 
+}
+
+char	*add_to_path(char *path, char *s)
+{
+	int		i;
+	int		offset;
+	char	*str;
+
+	str = malloc((lento(path, '\0') + lento(s, '\0') + 1) * sizeof(char *));
+	if (!str)
+		return (NULL);
+	i = -1;
+	while (path[++i])
+		str[i] = path[i];
+	str[i] = '/';
+	offset = i + 1;
+	i = -1;
+	while (s[++i])
+		str[i + offset] = s[i];
+	str[i + offset] = '\0';
+	return (str);
 }
 
 void	get_paths(t_data *d)
@@ -84,6 +115,7 @@ void	initiate_data(t_data *d, char **argv, char **envp)
 		d->cmd2 = argv[3];
 		d->outfile = open(argv[4], O_CREAT | O_RDWR);
 
+		d->state = STATE_NULL;
 		d->envp = envp;
 		get_paths(d);
 }
@@ -118,11 +150,12 @@ void	exec_with_paths(t_data *d, char *cmd)
 	i = -1;
 	while (d->paths[++i])
 	{
-		cmdpath = add_to_path(d->paths[i], '/', cmdargs[0]);	//DEFINE ME
+		cmdpath = add_to_path(d->paths[i], cmdargs[0]);
 		execve(cmdpath, cmdargs, d->envp);
 		free(cmdpath);
 	}
 
+	exit(EXIT_FAILURE);
 }
 void	exec_first_cmd(t_data *d)
 {
@@ -135,6 +168,7 @@ void	exec_first_cmd(t_data *d)
 	close(d->infile);
 
 	exec_with_paths(d, d->cmd1);
+
 	exit(EXIT_FAILURE);
 }
 
@@ -150,6 +184,7 @@ void	exec_second_cmd(t_data *d)
 	close(d->outfile);
 
 	exec_with_paths(d, d->cmd2);
+
 	exit(EXIT_FAILURE);
 }
 
