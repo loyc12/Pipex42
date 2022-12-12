@@ -6,11 +6,11 @@
 /*   By: llord <llord@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/05 15:05:24 by llord             #+#    #+#             */
-/*   Updated: 2022/12/09 13:18:49 by llord            ###   ########.fr       */
+/*   Updated: 2022/12/12 12:19:49 by llord            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "./pipex.h"
+#include "../pipex.h"
 
 int	count_sections(char *str, char c)
 {
@@ -35,10 +35,10 @@ char	**ft_split(char *str, char c)
 	int		s;
 	int		n;
 
-	printf("\nAll Paths : %s\n\n", str);		//DEBUG
+	printf("\nAll Paths : %s\n\n", str);				//DEBUG
 
 	n = count_sections(str, c);
-	output = calloc(n + 1, sizeof(char *));		//USE FT_CALLOC
+	output = calloc(n + 1, sizeof(char *));				//USE FT_CALLOC
 
 	s = -1;
 	i = -1;
@@ -74,7 +74,19 @@ char	**get_paths(char **envp)
 	return (output);
 }
 
-void	do_first_command(t_data *d)
+void	initiate_data(t_data *d, char **argv, char **envp)
+{
+		//	0 1      2   3   4		argc == 5
+		//	x infile cmd cmd outfile
+
+		d->infile = open(argv[1], O_RDONLY);
+		d->cmd1 = argv[2];
+		d->cmd2 = argv[3];
+		d->outfile = open(argv[4], O_CREAT | O_RDWR);
+		d->paths = get_paths(envp);
+}
+
+void	exec_first_cmd(t_data *d)
 {
 	dup2(d->infile, STDIN_FILENO);
 	dup2(d->outpipe, STDOUT_FILENO);
@@ -85,7 +97,7 @@ void	do_first_command(t_data *d)
 	exit(EXIT_FAILURE);
 }
 
-void	do_second_command(t_data *d)
+void	exec_second_cmd(t_data *d)
 {
 	waitpid(-1, d->statusInfo, 0);
 
@@ -98,7 +110,7 @@ void	do_second_command(t_data *d)
 	exit(EXIT_FAILURE);
 }
 
-void	pipex(t_data *d, char **argv, char **envp)
+void	pipex(t_data *d)
 {
 	int	pipends[2];
 	pid_t	isParent;
@@ -109,26 +121,55 @@ void	pipex(t_data *d, char **argv, char **envp)
 	isParent = fork();
 	if (isParent < 0)
 		return (perror("Fork: "));
-	/*if (!isParent)
-		child_process(d);
+
+	printf("we got here\n");							//DEBUG
+
+	if (!isParent)
+		exec_first_cmd(d);
 	else
-		parent_process(d);*/
+		exec_second_cmd(d);
+
+	printf("we got there\n");							//DEBUG
+}
+
+void	free_all(t_data *d)
+{
+	int	i;
+
+	i = -1;
+	printf("\nClosing state : %i\n\n", d->state);		//DEBUG
+	if (STATE_ERR_INPUT < d->state)
+	{
+		while (d->paths[++i])
+			free(d->paths[i]);
+		free(d->paths);
+	}
 }
 
 int	main(int argc, char **argv, char **envp)
 {
 	t_data	d;
 
-	d.paths = get_paths(envp);
-	d.infile = open(argv[1], O_RDONLY);
-	d.outfile = open(argv[4], O_CREAT | O_RDWR);
-	//if (d.infile < 0 || d.outfile < 0)
-		//return (EXIT_FAILURE);
+	if (5 == argc)
+	{
+		initiate_data(&d, argv, envp);
 
-	int	i = -1;
-	while (d.paths[++i])
-		printf("path #%i : %s\n", i, d.paths[i]);
+		if (d.infile < 0 || d.outfile < 0)
+			d.state = STATE_ERR_FILE;
 
-	pipex(&d, argv, envp);
+		int	i = -1;										//DEBUG
+		while (d.paths[++i])							//
+			printf("path #%i : %s\n", i, d.paths[i]);	//
+
+		pipex(&d);
+	}
+	else
+		d.state = STATE_ERR_INPUT;
+
+	free_all(&d);
+
+	if (d.state < STATE_SUCCESS)
+		return (EXIT_FAILURE);
+
 	return (EXIT_SUCCESS);
 }

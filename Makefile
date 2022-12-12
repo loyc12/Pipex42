@@ -6,7 +6,7 @@
 #    By: llord <llord@student.42.fr>                +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/12/05 11:28:36 by llord             #+#    #+#              #
-#    Updated: 2022/12/05 15:04:52 by llord            ###   ########.fr        #
+#    Updated: 2022/12/12 12:04:58 by llord            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -56,10 +56,10 @@ INCLUDE =	-I include
 LIBS	=	...
 
 # Dir and file names
-NAME	=	so_long
+NAME	=	pipex
 SRCDIR	=	src/
 OBJDIR	=	bin/
-FILES	=	...
+FILES	=	pipex
 
 SRCS	=	$(addprefix $(SRCDIR), $(addsuffix .c, $(FILES)))
 OBJS	=	$(addprefix $(OBJDIR), $(addsuffix .o, $(FILES)))
@@ -97,17 +97,14 @@ re: fclean all
 	@echo "$(CYAN)Cleaned and rebuilt everything!$(DEF_COLOR)"
 
 # Runs the resulting file
-run: re
+run: all clean
 	@echo "$(BLUE)Starting the program...$(DEF_COLOR)"
 	./$(NAME)
 
-lldb:
-	@echo "$(RED)Starting the debugging...$(DEF_COLOR)"
-
-leaks:
-	@echo "$(RED)Starting the debugging...$(DEF_COLOR)"
+#leaks:
+#	@echo "$(RED)Starting the debugging...$(DEF_COLOR)"
 
 test:
 	@echo "$(RED)Starting the debugging...$(DEF_COLOR)"
-	gcc -Wall -Werror -Wextra pipetest.c
-	leaks --atExit -- ./a.out
+	gcc -Wall -Werror -Wextra pipex.h src/pipex.c
+	leaks --atExit -- ./a.out src.txt "ls -l" "wc -l" dst.txt
