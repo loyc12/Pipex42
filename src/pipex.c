@@ -6,7 +6,7 @@
 /*   By: llord <llord@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/05 15:05:24 by llord             #+#    #+#             */
-/*   Updated: 2022/12/13 13:45:45 by llord            ###   ########.fr       */
+/*   Updated: 2022/12/13 13:50:20 by llord            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -123,7 +123,9 @@ void	free_all(t_data *d)
 	int	i;
 
 	i = -1;
+
 	printf("\nClosing state : %i\n\n", d->state);		//DEBUG
+
 	if (STATE_ERR_INPUT < d->state)
 	{
 		while (d->paths[++i])
