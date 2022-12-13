@@ -1,9 +1,1 @@
-
-/Users/llord/.brew/bin/wc
-
-
-/usr/local/bin/wc
-
-
-/usr/bin/wc
-
+       2

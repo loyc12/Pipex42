@@ -6,7 +6,7 @@
 #    By: llord <llord@student.42.fr>                +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/12/05 11:28:36 by llord             #+#    #+#              #
-#    Updated: 2022/12/12 12:04:58 by llord            ###   ########.fr        #
+#    Updated: 2022/12/13 12:59:47 by llord            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -107,4 +107,5 @@ run: all clean
 test:
 	@echo "$(RED)Starting the debugging...$(DEF_COLOR)"
 	gcc -Wall -Werror -Wextra pipex.h src/pipex.c
-	leaks --atExit -- ./a.out src.txt "ls -l" "wc -l" dst.txt
+	leaks --atExit -- ./a.out src.txt "grep e" "wc -l" dst.txt
+#
