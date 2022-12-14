@@ -6,7 +6,7 @@
 /*   By: llord <llord@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/05 15:05:28 by llord             #+#    #+#             */
-/*   Updated: 2022/12/13 12:52:58 by llord            ###   ########.fr       */
+/*   Updated: 2022/12/14 14:31:52 by llord            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,7 +43,6 @@ typedef struct s_data
 	char	*cmd2;
 	int		outfile;
 
-	int		*statusInfo;
 	char	**paths;
 	char	**envp;
 

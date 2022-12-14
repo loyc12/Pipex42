@@ -6,7 +6,7 @@
 /*   By: llord <llord@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/05 15:05:24 by llord             #+#    #+#             */
-/*   Updated: 2022/12/13 13:50:20 by llord            ###   ########.fr       */
+/*   Updated: 2022/12/14 14:45:49 by llord            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -151,10 +151,10 @@ void	exec_with_paths(t_data *d, char *cmd)
 	while (d->paths[++i])
 	{
 		cmdpath = add_to_path(d->paths[i], cmdargs[0]);
-		execve(cmdpath, cmdargs, d->envp);
+		if (!access(cmdpath, F_OK))
+			execve(cmdpath, cmdargs, d->envp);
 		free(cmdpath);
 	}
-
 	exit(EXIT_FAILURE);
 }
 void	exec_first_cmd(t_data *d)
@@ -165,13 +165,13 @@ void	exec_first_cmd(t_data *d)
 	close(d->outfile);
 
 	exec_with_paths(d, d->cmd1);
-
-	exit(EXIT_FAILURE);
 }
 
 void	exec_second_cmd(t_data *d)
 {
-	waitpid(-1, d->statusInfo, 0);
+	int		status;
+
+	waitpid(-1, &status, 0);
 
 	close(d->infile);
 	close(d->inpipe);
@@ -179,31 +179,30 @@ void	exec_second_cmd(t_data *d)
 	dup2(d->outfile, STDOUT_FILENO);
 
 	exec_with_paths(d, d->cmd2);
-
-	exit(EXIT_FAILURE);
 }
 
 void	first_fork(t_data *d, pid_t *child)
 {
 	*child = fork();
-	if (*child  < 0)
+	if (*child < 0)
 		d->state = STATE_ERR_PID;
-	if (*child == 0 && d->state < STATE_NULL)
+	else if (*child == 0 && d->state >= STATE_NULL)
 		exec_first_cmd(d);
 }
 
 void	second_fork(t_data *d, pid_t *child)
 {
 	*child = fork();
-	if (*child  < 0)
+	if (*child < 0)
 		d->state = STATE_ERR_PID;
-	if (*child == 0 && d->state < STATE_NULL)
+	else if (*child == 0 && d->state >= STATE_NULL)
 		exec_second_cmd(d);
 }
 
 void	pipex(t_data *d)
 {
-	int	pipends[2];
+	int		pipends[2];
+	int		status;
 	pid_t	first_child;
 	pid_t	second_child;
 
@@ -212,15 +211,16 @@ void	pipex(t_data *d)
 	d->outpipe = pipends[0];
 
 	first_fork(d, &first_child);
+
 	second_fork(d, &second_child);
 
+	close(d->infile);
 	close(d->inpipe);
 	close(d->outpipe);
+	close(d->outfile);
 
-	waitpid(first_child, d->statusInfo, 0);
-	waitpid(second_child, d->statusInfo, 0);
-
-	printf("Job done!\n");								//DEBUG
+	waitpid(first_child, &status, 0);
+	waitpid(second_child, &status, 0);
 }
 
 int	main(int argc, char **argv, char **envp)
