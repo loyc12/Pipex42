@@ -6,7 +6,7 @@
 #    By: llord <llord@student.42.fr>                +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/12/05 11:28:36 by llord             #+#    #+#              #
-#    Updated: 2022/12/13 12:59:47 by llord            ###   ########.fr        #
+#    Updated: 2022/12/15 13:40:24 by llord            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -33,7 +33,7 @@ WHITE = \033[0;97m
 # Special variables
 DEFAULT_GOAL: all
 .DELETE_ON_ERROR: $(NAME)
-.PHONY: all bonus clean fclean re run lldb leaks example
+.PHONY: all bonus clean fclean re run debug leaks
 
 # Hide calls
 export VERBOSE	=	TRUE
@@ -102,10 +102,12 @@ run: all clean
 	./$(NAME)
 
 #leaks:
-#	@echo "$(RED)Starting the debugging...$(DEF_COLOR)"
+debug:
+	@echo "$(RED)Compiled for debugging!$(DEF_COLOR)"
+	gcc -g -Wall -Werror -Wextra pipex.h src/pipex.c
 
-test:
-	@echo "$(RED)Starting the debugging...$(DEF_COLOR)"
+leaks:
+	@echo "$(RED)Starting the leak checking...$(DEF_COLOR)"
 	gcc -Wall -Werror -Wextra pipex.h src/pipex.c
 	leaks --atExit -- ./a.out src.txt "grep e" "wc -l" dst.txt
-#
+

@@ -6,7 +6,7 @@
 /*   By: llord <llord@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/05 15:05:24 by llord             #+#    #+#             */
-/*   Updated: 2022/12/15 13:16:16 by llord            ###   ########.fr       */
+/*   Updated: 2022/12/15 13:43:13 by llord            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -111,7 +111,7 @@ void	initiate_data(t_data *d, char **argv, char **envp)
 	d->infile = open(argv[1], O_RDONLY);
 	d->cmd1 = argv[2];
 	d->cmd2 = argv[3];
-	d->outfile = open(argv[4], O_CREAT | O_RDWR);
+	d->outfile = open(argv[4], O_CREAT | O_RDWR | O_TRUNC);
 
 	d->state = STATE_NULL;
 	d->envp = envp;
