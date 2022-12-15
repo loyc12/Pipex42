@@ -6,7 +6,7 @@
 /*   By: llord <llord@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/05 15:05:28 by llord             #+#    #+#             */
-/*   Updated: 2022/12/14 14:31:52 by llord            ###   ########.fr       */
+/*   Updated: 2022/12/15 13:04:30 by llord            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,10 +25,10 @@
 
 typedef enum e_state
 {
-	STATE_ERR_CMD = -4,		//cmd couldn't run
-	STATE_ERR_PID = -3,		//cmd couldn't run
-	STATE_ERR_FILE = -2,	//file couldn't open
-	STATE_ERR_INPUT = -1,	//bad argv count
+	STATE_ERR_INPUT = -4,	//bad argv count
+	STATE_ERR_FILE = -3,	//file couldn't open
+	STATE_ERR_PID = -2,		//cmd couldn't run
+	STATE_ERR_CMD = -1,		//cmd couldn't run
 	STATE_NULL = 0,
 	STATE_SUCCESS = 1,
 }			t_state;

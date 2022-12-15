@@ -6,7 +6,7 @@
 /*   By: llord <llord@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/05 15:05:24 by llord             #+#    #+#             */
-/*   Updated: 2022/12/14 14:45:49 by llord            ###   ########.fr       */
+/*   Updated: 2022/12/15 13:16:16 by llord            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -155,6 +155,7 @@ void	exec_with_paths(t_data *d, char *cmd)
 			execve(cmdpath, cmdargs, d->envp);
 		free(cmdpath);
 	}
+	d->state = STATE_ERR_CMD;
 	exit(EXIT_FAILURE);
 }
 void	exec_first_cmd(t_data *d)
@@ -211,7 +212,6 @@ void	pipex(t_data *d)
 	d->outpipe = pipends[0];
 
 	first_fork(d, &first_child);
-
 	second_fork(d, &second_child);
 
 	close(d->infile);

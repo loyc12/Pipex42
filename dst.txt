@@ -1,1 +1,23 @@
-       6
+bad cmd m8
+out
+dst.txt
+notes.txt
+pipetest.c
+pipex.h
+pipex.h.gch
+src
+src.txt
+-x  16 llord  2022_quebec     544 Dec 14 16:32 ..
+-rw-r--r--@  1 llord  2022_quebec    6148 Dec 15 10:41 .DS_Store
+drwxr-xr-x  14 llord  2022_quebec     476 Dec 14 14:46 .git
+-rw-r--r--@  1 llord  2022_quebec     456 Dec 12 11:45 .gitignore
+drwxr-xr-x   3 llord  2022_quebec     102 Dec 14 13:08 .vscode
+-rw-r--r--@  1 llord  2022_quebec    3534 Dec 13 12:59 Makefile
+-rwxr-xr-x   1 llord  2022_quebec   50712 Dec 15 13:05 a.out
+-rwxr-xr-x@  1 llord  2022_quebec     115 Dec 15 13:08 dst.txt
+-rw-r--r--@  1 llord  2022_quebec     316 Dec  5 14:00 notes.txt
+-rw-r--r--   1 llord  2022_quebec    3845 Dec  5 13:37 pipetest.c
+-rw-r--r--   1 llord  2022_quebec    1529 Dec 15 13:04 pipex.h
+-rw-r--r--   1 llord  2022_quebec  855988 Dec 15 13:05 pipex.h.gch
+drwxr-xr-x   3 llord  2022_quebec     102 Dec 14 14:31 src
+-rwxr-xr-x   1 llord  2022_quebec      54 Dec 14 14:40 src.txt
