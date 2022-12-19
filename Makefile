@@ -6,7 +6,7 @@
 #    By: llord <llord@student.42.fr>                +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/12/05 11:28:36 by llord             #+#    #+#              #
-#    Updated: 2022/12/15 13:40:24 by llord            ###   ########.fr        #
+#    Updated: 2022/12/19 14:48:46 by llord            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -33,7 +33,7 @@ WHITE = \033[0;97m
 # Special variables
 DEFAULT_GOAL: all
 .DELETE_ON_ERROR: $(NAME)
-.PHONY: all bonus clean fclean re run debug leaks
+.PHONY: all bonus clean fclean re run compare debug leaks longleaks
 
 # Hide calls
 export VERBOSE	=	TRUE
@@ -52,8 +52,8 @@ endif
 CC		=	gcc
 CFLAGS	=	-Wall -Werror -Wextra
 RM		=	rm -rf
-INCLUDE =	-I include
-LIBS	=	...
+INCLUDE =
+LIBS	=
 
 # Dir and file names
 NAME	=	pipex
@@ -101,13 +101,34 @@ run: all clean
 	@echo "$(BLUE)Starting the program...$(DEF_COLOR)"
 	./$(NAME)
 
-#leaks:
+compare: re
+	@echo "$(RED)Starting the comparison...$(DEF_COLOR)"
+	./pipex src.txt "grep a" "wc -w" dst.txt
+	< src.txt grep a | wc -w > real.txt
+
 debug:
 	@echo "$(RED)Compiled for debugging!$(DEF_COLOR)"
 	gcc -g -Wall -Werror -Wextra pipex.h src/pipex.c
 
-leaks:
+leaks: re
 	@echo "$(RED)Starting the leak checking...$(DEF_COLOR)"
-	gcc -Wall -Werror -Wextra pipex.h src/pipex.c
 	leaks --atExit -- ./a.out src.txt "grep e" "wc -l" dst.txt
+
+longleaks: re
+	@echo "$(RED)Starting the complete leak checking...$(DEF_COLOR)"
+	leaks --atExit -- ./a.out src.txt "grep e" "wc -l" dst.txt
+	sleep 2s
+	leaks --atExit -- ./a.out src.tx "grep e" "wc -l" dst.txt
+	sleep 2s
+	leaks --atExit -- ./a.out src.txt "grep" "wc -l" dst.txt
+#sleep 2s
+#leaks --atExit -- ./a.out src.txt "gre" "wc -l" dst.txt
+#sleep 2s
+#leaks --atExit -- ./a.out src.txt "grep e" "ww -l" dst.txt
+	sleep 2s
+	leaks --atExit -- ./a.out src.txt "grep e" "wc -la" dst.txt
+	sleep 2s
+	leaks --atExit -- ./a.out src.txt "grep e" "wc -l"
+	sleep 2s
+	leaks --atExit -- ./a.out src.txt "grep e" "wc -l" dst.txt dst.txt
 

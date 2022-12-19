@@ -6,7 +6,7 @@
 /*   By: llord <llord@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/05 15:05:24 by llord             #+#    #+#             */
-/*   Updated: 2022/12/15 14:52:06 by llord            ###   ########.fr       */
+/*   Updated: 2022/12/19 14:40:36 by llord            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -107,16 +107,13 @@ void	initiate_data(t_data *d, char **argv, char **envp)
 {
 	//	0 1      2   3   4		argc == 5
 	//	x infile cmd cmd outfile
-	int	*state;
 
 	d->infile = open(argv[1], O_RDONLY);
 	d->cmd1 = argv[2];
 	d->cmd2 = argv[3];
 	d->outfile = open(argv[4], O_CREAT | O_RDWR | O_TRUNC);
 
-	state = calloc(2, sizeof(char *));				//USE FT_CALLOC
-	*state = STATE_NORMAL;
-	d->state = state;
+	d->state = STATE_DEFAULT;
 	d->envp = envp;
 	get_paths(d);
 }
@@ -126,20 +123,23 @@ void	free_all(t_data *d)
 	int	i;
 
 	i = -1;
-
-	printf("\nClosing state : %i\n\n", *(d->state));		//DEBUG
-
-	if (STATE_ERR_INPUT < *(d->state))
+	if (STATE_ERR_INPUT < d->state)
 	{
 		while (d->paths[++i])
 			free(d->paths[i]);
 		free(d->paths);
-		//free d.state
 	}
 }
 
-
-
+void	log_errors(t_data *d)
+{
+	if (d->state == STATE_ERR_INPUT)
+		write(STDERR_FILENO, "Input Error : Invalid argument count\n", 37);
+	else if (d->state == STATE_ERR_FILE)
+		write(STDERR_FILENO, "File Error : Couldn't find input file\n", 38);
+	else if (d->state == STATE_ERR_PID)
+		write(STDERR_FILENO, "PID Error : Couldn't fork properly\n", 35);
+}
 
 
 
@@ -159,10 +159,6 @@ void	exec_with_paths(t_data *d, char *cmd)
 			execve(cmdpath, cmdargs, d->envp);
 		free(cmdpath);
 	}
-	*(d->state) = STATE_ERR_CMD;
-	char result = (*(d->state) + '5');
-	write(STDERR_FILENO, &result, 1);
-	exit(EXIT_FAILURE);
 }
 void	exec_first_cmd(t_data *d)
 {
@@ -172,6 +168,8 @@ void	exec_first_cmd(t_data *d)
 	close(d->outfile);
 
 	exec_with_paths(d, d->cmd1);
+	write(STDERR_FILENO, "Command Error : Couldn't find the first command\n", 48);
+	exit(EXIT_FAILURE);
 }
 
 void	exec_second_cmd(t_data *d)
@@ -186,14 +184,16 @@ void	exec_second_cmd(t_data *d)
 	dup2(d->outfile, STDOUT_FILENO);
 
 	exec_with_paths(d, d->cmd2);
+	write(STDERR_FILENO, "Command Error : Couldn't find the second command\n", 49);
+	exit(EXIT_FAILURE);
 }
 
 void	first_fork(t_data *d, pid_t *child)
 {
 	*child = fork();
 	if (*child < 0)
-		*(d->state) = STATE_ERR_PID;
-	else if (*child == 0 && *(d->state) >= STATE_NORMAL)
+		d->state = STATE_ERR_PID;
+	else if (*child == 0)
 		exec_first_cmd(d);
 }
 
@@ -201,8 +201,8 @@ void	second_fork(t_data *d, pid_t *child)
 {
 	*child = fork();
 	if (*child < 0)
-		*(d->state) = STATE_ERR_PID;
-	else if (*child == 0 && *(d->state) >= STATE_NORMAL)
+		d->state = STATE_ERR_PID;
+	else if (*child == 0)
 		exec_second_cmd(d);
 }
 
@@ -227,8 +227,6 @@ void	pipex(t_data *d)
 
 	waitpid(first_child, &status, 0);
 	waitpid(second_child, &status, 0);
-	//char result = (*(d->state) + '5');
-	//write(STDERR_FILENO, &result, 1);
 }
 
 int	main(int argc, char **argv, char **envp)
@@ -240,17 +238,15 @@ int	main(int argc, char **argv, char **envp)
 		initiate_data(&d, argv, envp);
 
 		if (d.infile < 0 || d.outfile < 0)
-			*(d.state) = STATE_ERR_FILE;
+			d.state = STATE_ERR_FILE;
 		else
 			pipex(&d);
 	}
 	else
-		*(d.state) = STATE_ERR_INPUT;
+		d.state = STATE_ERR_INPUT;
 
 	free_all(&d);
-
-	if (*(d.state) < STATE_NORMAL)
-		return (EXIT_FAILURE);
+	log_errors(&d);
 
 	return (EXIT_SUCCESS);
 }
