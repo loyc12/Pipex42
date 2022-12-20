@@ -6,7 +6,7 @@
 #    By: llord <llord@student.42.fr>                +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/12/05 11:28:36 by llord             #+#    #+#              #
-#    Updated: 2022/12/19 14:48:46 by llord            ###   ########.fr        #
+#    Updated: 2022/12/20 12:26:02 by llord            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -112,23 +112,25 @@ debug:
 
 leaks: re
 	@echo "$(RED)Starting the leak checking...$(DEF_COLOR)"
-	leaks --atExit -- ./a.out src.txt "grep e" "wc -l" dst.txt
+	leaks --atExit -- ./pipex src.txt "gre e" "ww -l" dst.txt
 
 longleaks: re
 	@echo "$(RED)Starting the complete leak checking...$(DEF_COLOR)"
-	leaks --atExit -- ./a.out src.txt "grep e" "wc -l" dst.txt
-	sleep 2s
-	leaks --atExit -- ./a.out src.tx "grep e" "wc -l" dst.txt
-	sleep 2s
-	leaks --atExit -- ./a.out src.txt "grep" "wc -l" dst.txt
-#sleep 2s
-#leaks --atExit -- ./a.out src.txt "gre" "wc -l" dst.txt
-#sleep 2s
-#leaks --atExit -- ./a.out src.txt "grep e" "ww -l" dst.txt
-	sleep 2s
-	leaks --atExit -- ./a.out src.txt "grep e" "wc -la" dst.txt
-	sleep 2s
-	leaks --atExit -- ./a.out src.txt "grep e" "wc -l"
-	sleep 2s
-	leaks --atExit -- ./a.out src.txt "grep e" "wc -l" dst.txt dst.txt
+	leaks --atExit -- ./pipex src.txt "grep e" "wc -l" dst.txt
+	sleep 1s
+	leaks --atExit -- ./pipex src.tx "grep e" "wc -l" dst.txt
+	sleep 1s
+	leaks --atExit -- ./pipex src.txt "grep" "wc -l" dst.txt
+	sleep 1s
+	leaks --atExit -- ./pipex src.txt "gre e" "wc -l" dst.txt
+	sleep 1s
+	leaks --atExit -- ./pipex src.txt "gre e" "ww -l" dst.txt
+	sleep 1s
+	leaks --atExit -- ./pipex src.txt "grep e" "ww -l" dst.txt
+	sleep 1s
+	leaks --atExit -- ./pipex src.txt "grep e" "wc -la" dst.txt
+	sleep 1s
+	leaks --atExit -- ./pipex src.txt "grep e" "wc -l"
+	sleep 1s
+	leaks --atExit -- ./pipex src.txt "grep e" "wc -l" dst.txt dst.txt
 

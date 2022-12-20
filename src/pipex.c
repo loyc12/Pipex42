@@ -6,7 +6,7 @@
 /*   By: llord <llord@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/05 15:05:24 by llord             #+#    #+#             */
-/*   Updated: 2022/12/19 14:40:36 by llord            ###   ########.fr       */
+/*   Updated: 2022/12/20 12:31:29 by llord            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -97,11 +97,79 @@ void	get_paths(t_data *d)
 		i++;
 	d->paths = ft_split(d->envp[i] + 5, ':');
 
-	//i = -1;											//DEBUG
+	//i = -1;										//DEBUG
 	//while (d->paths[++i])							//
 	//	printf("path #%i : %s\n", i, d->paths[i]);	//
 	//printf("\n");									//
 }
+
+
+
+void	exec_with_paths(t_data *d, char *cmd)
+{
+	char	**cmdargs;
+	char	*cmdpath;
+	int		i;
+
+	cmdargs = ft_split(cmd, ' ');
+
+	i = -1;
+	while (d->paths[++i])
+	{
+		cmdpath = add_to_path(d->paths[i], cmdargs[0]);
+		if (!access(cmdpath, F_OK))
+			execve(cmdpath, cmdargs, d->envp);
+		free(cmdpath);
+	}
+}
+
+void	exec_first_cmd(t_data *d)
+{
+	dup2(d->infile, STDIN_FILENO);
+	dup2(d->inpipe, STDOUT_FILENO);
+	close(d->outpipe);
+	close(d->outfile);
+
+	exec_with_paths(d, d->cmd1);
+	write(STDERR_FILENO, "Command Error : Invalid command (1)\n", 36);
+	exit(EXIT_FAILURE);
+}
+
+void	exec_second_cmd(t_data *d)
+{
+	int		status;
+
+	waitpid(-1, &status, 0);
+
+	dup2(d->outpipe, STDIN_FILENO);
+	dup2(d->outfile, STDOUT_FILENO);
+	close(d->infile);
+	close(d->inpipe);
+
+	exec_with_paths(d, d->cmd2);
+	write(STDERR_FILENO, "Command Error : Invalid command (2)\n", 36);
+	exit(EXIT_FAILURE);
+}
+
+void	first_fork(t_data *d, pid_t *child)
+{
+	*child = fork();
+	if (*child < 0)
+		write(STDERR_FILENO, "PID Error : Couldn't fork properly (1)\n", 39);
+	else if (*child == 0)
+		exec_first_cmd(d);
+}
+
+void	second_fork(t_data *d, pid_t *child)
+{
+	*child = fork();
+	if (*child < 0)
+		write(STDERR_FILENO, "PID Error : Couldn't fork properly (2)\n", 39);
+	else if (*child == 0)
+		exec_second_cmd(d);
+}
+
+
 
 void	initiate_data(t_data *d, char **argv, char **envp)
 {
@@ -129,81 +197,6 @@ void	free_all(t_data *d)
 			free(d->paths[i]);
 		free(d->paths);
 	}
-}
-
-void	log_errors(t_data *d)
-{
-	if (d->state == STATE_ERR_INPUT)
-		write(STDERR_FILENO, "Input Error : Invalid argument count\n", 37);
-	else if (d->state == STATE_ERR_FILE)
-		write(STDERR_FILENO, "File Error : Couldn't find input file\n", 38);
-	else if (d->state == STATE_ERR_PID)
-		write(STDERR_FILENO, "PID Error : Couldn't fork properly\n", 35);
-}
-
-
-
-void	exec_with_paths(t_data *d, char *cmd)
-{
-	char	**cmdargs;
-	char	*cmdpath;
-	int		i;
-
-	cmdargs = ft_split(cmd, ' ');
-
-	i = -1;
-	while (d->paths[++i])
-	{
-		cmdpath = add_to_path(d->paths[i], cmdargs[0]);
-		if (!access(cmdpath, F_OK))
-			execve(cmdpath, cmdargs, d->envp);
-		free(cmdpath);
-	}
-}
-void	exec_first_cmd(t_data *d)
-{
-	dup2(d->infile, STDIN_FILENO);
-	dup2(d->inpipe, STDOUT_FILENO);
-	close(d->outpipe);
-	close(d->outfile);
-
-	exec_with_paths(d, d->cmd1);
-	write(STDERR_FILENO, "Command Error : Couldn't find the first command\n", 48);
-	exit(EXIT_FAILURE);
-}
-
-void	exec_second_cmd(t_data *d)
-{
-	int		status;
-
-	waitpid(-1, &status, 0);
-
-	close(d->infile);
-	close(d->inpipe);
-	dup2(d->outpipe, STDIN_FILENO);
-	dup2(d->outfile, STDOUT_FILENO);
-
-	exec_with_paths(d, d->cmd2);
-	write(STDERR_FILENO, "Command Error : Couldn't find the second command\n", 49);
-	exit(EXIT_FAILURE);
-}
-
-void	first_fork(t_data *d, pid_t *child)
-{
-	*child = fork();
-	if (*child < 0)
-		d->state = STATE_ERR_PID;
-	else if (*child == 0)
-		exec_first_cmd(d);
-}
-
-void	second_fork(t_data *d, pid_t *child)
-{
-	*child = fork();
-	if (*child < 0)
-		d->state = STATE_ERR_PID;
-	else if (*child == 0)
-		exec_second_cmd(d);
 }
 
 void	pipex(t_data *d)
@@ -237,16 +230,18 @@ int	main(int argc, char **argv, char **envp)
 	{
 		initiate_data(&d, argv, envp);
 
-		if (d.infile < 0 || d.outfile < 0)
-			d.state = STATE_ERR_FILE;
-		else
+		if (d.infile < 0)
+			write(STDERR_FILENO, "File Error : Bad source file name\n", 34);
+		if (d.outfile < 0)
+			write(STDERR_FILENO, "File Error : Unable to create destination file\n", 47);
+		if (0 <= d.infile && 0 <= d.outfile)
+		{
 			pipex(&d);
+			free_all(&d);
+		}
 	}
 	else
-		d.state = STATE_ERR_INPUT;
-
-	free_all(&d);
-	log_errors(&d);
+		write(STDERR_FILENO, "Input Error : Bad argument count (!=4)\n", 39);
 
 	return (EXIT_SUCCESS);
 }
