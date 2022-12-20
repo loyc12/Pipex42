@@ -6,7 +6,7 @@
 #    By: llord <llord@student.42.fr>                +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/12/05 11:28:36 by llord             #+#    #+#              #
-#    Updated: 2022/12/20 15:16:50 by llord            ###   ########.fr        #
+#    Updated: 2022/12/20 18:20:05 by llord            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -36,7 +36,7 @@ DEFAULT_GOAL: all
 .PHONY: all bonus clean fclean re run compare debug leaks longleaks
 
 # Hide calls
-export VERBOSE	=	TRUE
+export VERBOSE	= FALSE
 ifeq ($(VERBOSE),TRUE)
 	HIDE =
 else
@@ -59,7 +59,7 @@ LIBS	=
 NAME	=	pipex
 SRCDIR	=	src/
 OBJDIR	=	bin/
-FILES	=	pipex
+FILES	=	pipex forkers pathers libft_imports
 
 SRCS	=	$(addprefix $(SRCDIR), $(addsuffix .c, $(FILES)))
 OBJS	=	$(addprefix $(OBJDIR), $(addsuffix .o, $(FILES)))
@@ -99,40 +99,34 @@ re: fclean all
 # Runs the resulting file
 run: re
 	@echo "$(BLUE)Starting the program...$(DEF_COLOR)"
-	./pipex src.txt "grep e" "wc -l" dst.txt
+	$(HIDE)./pipex src.txt "grep e" "wc -l" dst.txt
 
 compare: re
 	@echo "$(RED)Starting the comparison...$(DEF_COLOR)"
-	./pipex src.txt "grep a" "wc -w" pipex.txt
-	< src.txt grep a | wc -w > real.txt
+	$(HIDE)./pipex src.txt "grep a" "wc -w" pipex.txt
+	$(HIDE)< src.txt grep a | wc -w > real.txt
 
 debug:
 	@echo "$(RED)Compiled for debugging!$(DEF_COLOR)"
-	gcc -g -Wall -Werror -Wextra pipex.h src/pipex.c
+	$(HIDE)gcc -g -Wall -Werror -Wextra pipex.h src/pipex.c
 
 leaks: re
 	@echo "$(RED)Starting the leak checking...$(DEF_COLOR)"
-	leaks --atExit -- ./pipex src.txt "grep e" "wc -l" dst.txt
+	$(HIDE)leaks --atExit -- ./pipex src.txt "grep e" "wc -l" dst.txt
 
 longleaks: re
 	@echo "$(RED)Starting the complete leak checking...$(DEF_COLOR)"
-	leaks --atExit -- ./pipex src.txt "grep e" "wc -l" dst.txt
-	sleep 1s
-	leaks --atExit -- ./pipex src.tx "grep e" "wc -l" dst.txt
-	sleep 1s
-	leaks --atExit -- ./pipex src.txt "grep e" "wc -l" ""
-	sleep 1s
-	leaks --atExit -- ./pipex src.txt "grep" "wc -l" dst.txt
-	sleep 1s
-	leaks --atExit -- ./pipex src.txt "grep e" "wc -la" dst.txt
-	sleep 1s
-	leaks --atExit -- ./pipex src.txt "grep e" "wc -l"
-	sleep 1s
-	leaks --atExit -- ./pipex src.txt "grep e" "wc -l" dst.txt dst.txt
-#	sleep 1s
-#	leaks --atExit -- ./pipex src.txt "gre e" "wc -l" dst.txt
-#	sleep 1s
-#	leaks --atExit -- ./pipex src.txt "gre e" "ww -l" dst.txt
-#	sleep 1s
-#	leaks --atExit -- ./pipex src.txt "grep e" "ww -l" dst.txt
+	$(HIDE)leaks --atExit -- ./pipex src.txt "grep e" "wc -l" dst.txt
+	@sleep 1s
+	$(HIDE)leaks --atExit -- ./pipex src.tx "grep e" "wc -l" dst.txt
+	@sleep 1s
+	$(HIDE)leaks --atExit -- ./pipex src.txt "grep e" "wc -l" ""
+	@sleep 1s
+	$(HIDE)leaks --atExit -- ./pipex src.txt "grep" "wc -l" dst.txt
+	@sleep 1s
+	$(HIDE)leaks --atExit -- ./pipex src.txt "grep e" "wc -la" dst.txt
+	@sleep 1s
+	$(HIDE)leaks --atExit -- ./pipex src.txt "grep e" "wc -l"
+	@sleep 1s
+	$(HIDE)leaks --atExit -- ./pipex src.txt "grep e" "wc -l" dst.txt dst.txt
 
