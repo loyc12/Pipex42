@@ -6,7 +6,7 @@
 #    By: llord <llord@student.42.fr>                +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/12/05 11:28:36 by llord             #+#    #+#              #
-#    Updated: 2022/12/20 12:26:02 by llord            ###   ########.fr        #
+#    Updated: 2022/12/20 15:16:50 by llord            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -97,13 +97,13 @@ re: fclean all
 	@echo "$(CYAN)Cleaned and rebuilt everything!$(DEF_COLOR)"
 
 # Runs the resulting file
-run: all clean
+run: re
 	@echo "$(BLUE)Starting the program...$(DEF_COLOR)"
-	./$(NAME)
+	./pipex src.txt "grep e" "wc -l" dst.txt
 
 compare: re
 	@echo "$(RED)Starting the comparison...$(DEF_COLOR)"
-	./pipex src.txt "grep a" "wc -w" dst.txt
+	./pipex src.txt "grep a" "wc -w" pipex.txt
 	< src.txt grep a | wc -w > real.txt
 
 debug:
@@ -112,7 +112,7 @@ debug:
 
 leaks: re
 	@echo "$(RED)Starting the leak checking...$(DEF_COLOR)"
-	leaks --atExit -- ./pipex src.txt "gre e" "ww -l" dst.txt
+	leaks --atExit -- ./pipex src.txt "grep e" "wc -l" dst.txt
 
 longleaks: re
 	@echo "$(RED)Starting the complete leak checking...$(DEF_COLOR)"
@@ -120,17 +120,19 @@ longleaks: re
 	sleep 1s
 	leaks --atExit -- ./pipex src.tx "grep e" "wc -l" dst.txt
 	sleep 1s
+	leaks --atExit -- ./pipex src.txt "grep e" "wc -l" ""
+	sleep 1s
 	leaks --atExit -- ./pipex src.txt "grep" "wc -l" dst.txt
-	sleep 1s
-	leaks --atExit -- ./pipex src.txt "gre e" "wc -l" dst.txt
-	sleep 1s
-	leaks --atExit -- ./pipex src.txt "gre e" "ww -l" dst.txt
-	sleep 1s
-	leaks --atExit -- ./pipex src.txt "grep e" "ww -l" dst.txt
 	sleep 1s
 	leaks --atExit -- ./pipex src.txt "grep e" "wc -la" dst.txt
 	sleep 1s
 	leaks --atExit -- ./pipex src.txt "grep e" "wc -l"
 	sleep 1s
 	leaks --atExit -- ./pipex src.txt "grep e" "wc -l" dst.txt dst.txt
+#	sleep 1s
+#	leaks --atExit -- ./pipex src.txt "gre e" "wc -l" dst.txt
+#	sleep 1s
+#	leaks --atExit -- ./pipex src.txt "gre e" "ww -l" dst.txt
+#	sleep 1s
+#	leaks --atExit -- ./pipex src.txt "grep e" "ww -l" dst.txt
 

@@ -6,7 +6,7 @@
 /*   By: llord <llord@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/05 15:05:24 by llord             #+#    #+#             */
-/*   Updated: 2022/12/20 12:31:29 by llord            ###   ########.fr       */
+/*   Updated: 2022/12/20 15:17:18 by llord            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,11 +96,6 @@ void	get_paths(t_data *d)
 	while (d->envp[i][0] != 'P' || d->envp[i][1] != 'A')
 		i++;
 	d->paths = ft_split(d->envp[i] + 5, ':');
-
-	//i = -1;										//DEBUG
-	//while (d->paths[++i])							//
-	//	printf("path #%i : %s\n", i, d->paths[i]);	//
-	//printf("\n");									//
 }
 
 
@@ -117,7 +112,7 @@ void	exec_with_paths(t_data *d, char *cmd)
 	while (d->paths[++i])
 	{
 		cmdpath = add_to_path(d->paths[i], cmdargs[0]);
-		if (!access(cmdpath, F_OK))
+		if (!access(cmdpath, F_OK | X_OK))
 			execve(cmdpath, cmdargs, d->envp);
 		free(cmdpath);
 	}
@@ -127,28 +122,28 @@ void	exec_first_cmd(t_data *d)
 {
 	dup2(d->infile, STDIN_FILENO);
 	dup2(d->inpipe, STDOUT_FILENO);
+
 	close(d->outpipe);
 	close(d->outfile);
 
 	exec_with_paths(d, d->cmd1);
 	write(STDERR_FILENO, "Command Error : Invalid command (1)\n", 36);
-	exit(EXIT_FAILURE);
 }
 
 void	exec_second_cmd(t_data *d)
 {
 	int		status;
 
-	waitpid(-1, &status, 0);
+	waitpid(-1, &status, 0);		//remove me?
 
 	dup2(d->outpipe, STDIN_FILENO);
 	dup2(d->outfile, STDOUT_FILENO);
+
 	close(d->infile);
 	close(d->inpipe);
 
 	exec_with_paths(d, d->cmd2);
 	write(STDERR_FILENO, "Command Error : Invalid command (2)\n", 36);
-	exit(EXIT_FAILURE);
 }
 
 void	first_fork(t_data *d, pid_t *child)
@@ -157,7 +152,17 @@ void	first_fork(t_data *d, pid_t *child)
 	if (*child < 0)
 		write(STDERR_FILENO, "PID Error : Couldn't fork properly (1)\n", 39);
 	else if (*child == 0)
+	{
 		exec_first_cmd(d);
+
+		close(d->infile);
+		close(d->inpipe);
+		close(d->outpipe);
+		close(d->outfile);
+
+		write(STDERR_FILENO, "EXIT 1\n", 7);	//DEBUG
+		exit(EXIT_FAILURE);
+	}
 }
 
 void	second_fork(t_data *d, pid_t *child)
@@ -166,7 +171,17 @@ void	second_fork(t_data *d, pid_t *child)
 	if (*child < 0)
 		write(STDERR_FILENO, "PID Error : Couldn't fork properly (2)\n", 39);
 	else if (*child == 0)
+	{
 		exec_second_cmd(d);
+
+		close(d->infile);
+		close(d->inpipe);
+		close(d->outpipe);
+		close(d->outfile);
+
+		write(STDERR_FILENO, "EXIT 2\n", 7);	//DEBUG
+		exit(EXIT_FAILURE);
+	}
 }
 
 
@@ -181,7 +196,6 @@ void	initiate_data(t_data *d, char **argv, char **envp)
 	d->cmd2 = argv[3];
 	d->outfile = open(argv[4], O_CREAT | O_RDWR | O_TRUNC);
 
-	d->state = STATE_DEFAULT;
 	d->envp = envp;
 	get_paths(d);
 }
@@ -191,12 +205,9 @@ void	free_all(t_data *d)
 	int	i;
 
 	i = -1;
-	if (STATE_ERR_INPUT < d->state)
-	{
-		while (d->paths[++i])
-			free(d->paths[i]);
-		free(d->paths);
-	}
+	while (d->paths[++i])
+		free(d->paths[i]);
+	free(d->paths);
 }
 
 void	pipex(t_data *d)
@@ -218,8 +229,10 @@ void	pipex(t_data *d)
 	close(d->outpipe);
 	close(d->outfile);
 
+	write(STDERR_FILENO, "Reached here!\n", 14);	//DEBUG
 	waitpid(first_child, &status, 0);
 	waitpid(second_child, &status, 0);
+	write(STDERR_FILENO, "But not here!\n", 14);	//DEBUG
 }
 
 int	main(int argc, char **argv, char **envp)
@@ -231,14 +244,12 @@ int	main(int argc, char **argv, char **envp)
 		initiate_data(&d, argv, envp);
 
 		if (d.infile < 0)
-			write(STDERR_FILENO, "File Error : Bad source file name\n", 34);
+			write(STDERR_FILENO, "File Error : Unable to open source file\n", 40);
 		if (d.outfile < 0)
 			write(STDERR_FILENO, "File Error : Unable to create destination file\n", 47);
 		if (0 <= d.infile && 0 <= d.outfile)
-		{
 			pipex(&d);
-			free_all(&d);
-		}
+		free_all(&d);
 	}
 	else
 		write(STDERR_FILENO, "Input Error : Bad argument count (!=4)\n", 39);

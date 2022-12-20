@@ -6,7 +6,7 @@
 /*   By: llord <llord@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/05 15:05:28 by llord             #+#    #+#             */
-/*   Updated: 2022/12/20 12:21:43 by llord            ###   ########.fr       */
+/*   Updated: 2022/12/20 14:59:00 by llord            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,9 +41,6 @@ typedef struct s_data
 
 	char	**paths;
 	char	**envp;
-
-	int		state;
-
 }			t_data;
 
 #endif
