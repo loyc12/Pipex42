@@ -6,7 +6,7 @@
 #    By: llord <llord@student.42.fr>                +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/12/05 11:28:36 by llord             #+#    #+#              #
-#    Updated: 2022/12/20 18:20:05 by llord            ###   ########.fr        #
+#    Updated: 2022/12/21 15:10:30 by llord            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -33,7 +33,7 @@ WHITE = \033[0;97m
 # Special variables
 DEFAULT_GOAL: all
 .DELETE_ON_ERROR: $(NAME)
-.PHONY: all bonus clean fclean re run compare debug leaks longleaks
+.PHONY: all bonus clean fclean re run compare debug leaks tests
 
 # Hide calls
 export VERBOSE	= FALSE
@@ -97,36 +97,64 @@ re: fclean all
 	@echo "$(CYAN)Cleaned and rebuilt everything!$(DEF_COLOR)"
 
 # Runs the resulting file
-run: re
+run: all
 	@echo "$(BLUE)Starting the program...$(DEF_COLOR)"
-	$(HIDE)./pipex src.txt "grep e" "wc -l" dst.txt
+	$(HIDE)./pipex tests/src.txt "grep e" "wc -l" tests/dst.txt
 
-compare: re
+compare: all
 	@echo "$(RED)Starting the comparison...$(DEF_COLOR)"
-	$(HIDE)./pipex src.txt "grep a" "wc -w" pipex.txt
-	$(HIDE)< src.txt grep a | wc -w > real.txt
+	$(HIDE)./pipex tests/src.txt "gre a" "cat" pipex.txt
+	$(HIDE)< tests/src.txt gre a | cat > real.txt
 
-debug:
+debug: all
 	@echo "$(RED)Compiled for debugging!$(DEF_COLOR)"
 	$(HIDE)gcc -g -Wall -Werror -Wextra pipex.h src/pipex.c
 
-leaks: re
+leaks: all
 	@echo "$(RED)Starting the leak checking...$(DEF_COLOR)"
-	$(HIDE)leaks --atExit -- ./pipex src.txt "grep e" "wc -l" dst.txt
+	$(HIDE)valgrind --leak-check=full --show-leak-kinds=all --trace-children=yes -s ./pipex tests/src.txt "grep e" "wc -l" tests/dst.txt
 
-longleaks: re
+tests: all
+#	real pie created empty file created so long as dst path is non-empty (t1-t10)
+#	but crashes the following test in certain cases (t7-t13)
 	@echo "$(RED)Starting the complete leak checking...$(DEF_COLOR)"
-	$(HIDE)leaks --atExit -- ./pipex src.txt "grep e" "wc -l" dst.txt
-	@sleep 1s
-	$(HIDE)leaks --atExit -- ./pipex src.tx "grep e" "wc -l" dst.txt
-	@sleep 1s
-	$(HIDE)leaks --atExit -- ./pipex src.txt "grep e" "wc -l" ""
-	@sleep 1s
-	$(HIDE)leaks --atExit -- ./pipex src.txt "grep" "wc -l" dst.txt
-	@sleep 1s
-	$(HIDE)leaks --atExit -- ./pipex src.txt "grep e" "wc -la" dst.txt
-	@sleep 1s
-	$(HIDE)leaks --atExit -- ./pipex src.txt "grep e" "wc -l"
-	@sleep 1s
-	$(HIDE)leaks --atExit -- ./pipex src.txt "grep e" "wc -l" dst.txt dst.txt
+	@echo "\ntest 1"
+	$(HIDE)./pipex tests/src.txt "grep e" "cat" tests/p1.txt
+	$(HIDE)< tests/src.txt grep e | cat > tests/r1.txt
+	@echo "\ntest 2"
+	$(HIDE)./pipex "" "grep e" "cat" tests/p2.txt
+	$(HIDE)< "" grep e | cat > tests/r2.txt
+	@echo "\ntest 3"
+	$(HIDE)./pipex nope.txt "grep e" "cat" tests/p3.txt
+	$(HIDE)< nope.txt grep e | cat > tests/r3.txt
+	@echo "\ntest 4"
+	$(HIDE)./pipex tests/src.txt "" "cat" tests/p4.txt
+	$(HIDE)< tests/src.txt "" | cat > tests/r4.txt
+	@echo "\ntest 5"
+	$(HIDE)./pipex tests/src.txt "grep" "cat" tests/p5.txt
+	$(HIDE)< tests/src.txt grep | cat > tests/r5.txt
+	@echo "\ntest 6"
+	$(HIDE)./pipex tests/src.txt "gre e" "cat" tests/p6.txt
+	$(HIDE)< tests/src.txt gre e | cat > tests/r6.txt
+	@echo "\ntest 7"
+	$(HIDE)./pipex tests/src.txt "grep e" "ca" tests/p7.txt
+#	$(HIDE)< tests/src.txt grep e | ca > tests/r7.txt
+	@echo "\ntest 8"
+	$(HIDE)./pipex tests/src.txt "grep e" "cat -a" tests/p8.txt
+#	$(HIDE)< tests/src.txt grep e | cat -a > tests/r8.txt
+	@echo "\ntest 9"
+	$(HIDE)./pipex tests/src.txt "grep e" "" tests/p9.txt
+#	$(HIDE) < tests/src.txt grep e | "" > tests/r9.txt
+	@echo "\ntest 10"
+	$(HIDE)./pipex tests/src.txt "" "" tests/p10.txt
+#	$(HIDE)< tests/src.txt "" | "" > tests/r10.txt
+	@echo "\ntest 11"
+	$(HIDE)./pipex "" "grep e" "cat" ""
+#	$(HIDE)< "" grep e | cat > ""
+	@echo "\ntest 12"
+	$(HIDE)./pipex tests/src.txt "grep e" "cat" ""
+#	$(HIDE)< tests/src.txt grep e | cat > ""
+	@echo "\ntest 13"
+	$(HIDE)./pipex "" "" "" ""
+#	$(HIDE)< "" "" | "" > ""
 

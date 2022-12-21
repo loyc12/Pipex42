@@ -6,7 +6,7 @@
 /*   By: llord <llord@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/20 15:22:57 by llord             #+#    #+#             */
-/*   Updated: 2022/12/20 18:20:44 by llord            ###   ########.fr       */
+/*   Updated: 2022/12/21 14:12:31 by llord            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,9 +25,12 @@ void	exec_with_paths(t_data *d, char *cmd)
 		cmdpath = add_to_path(d->paths[i], cmdargs[0]);
 		if (!access(cmdpath, F_OK | X_OK))
 			execve(cmdpath, cmdargs, d->envp);
-		free(cmdpath);
+		//free(cmdpath);
 	}
-	free(cmdargs);
+	//i = -1;
+	//while (cmdargs[++i])				//these free() do nothing to mem (cause of exit(?))
+		//free(cmdargs[i]);
+	//free(cmdargs);
 }
 
 void	exec_first_cmd(t_data *d)
@@ -56,9 +59,6 @@ void	first_fork(t_data *d, pid_t *child)
 
 void	exec_second_cmd(t_data *d)
 {
-	//int		status;
-
-	//waitpid(-1, &status, 0);					//REMOVE ME
 	dup2(d->outpipe, STDIN_FILENO);
 	dup2(d->outfile, STDOUT_FILENO);
 	close(d->infile);

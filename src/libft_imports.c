@@ -6,7 +6,7 @@
 /*   By: llord <llord@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/20 15:22:49 by llord             #+#    #+#             */
-/*   Updated: 2022/12/20 18:20:54 by llord            ###   ########.fr       */
+/*   Updated: 2022/12/21 13:31:01 by llord            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,7 @@ void	*ft_calloc(int count, int size)
 	void	*ptr;
 	int		i;
 
-	i = count * size;				//+1?
+	i = (count * size) + 1;
 	if (i <= 0)
 		return (NULL);
 	ptr = (void *)malloc(i);
