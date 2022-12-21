@@ -6,7 +6,7 @@
 #    By: llord <llord@student.42.fr>                +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/12/05 11:28:36 by llord             #+#    #+#              #
-#    Updated: 2022/12/21 16:58:18 by llord            ###   ########.fr        #
+#    Updated: 2022/12/21 17:27:58 by llord            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -59,7 +59,7 @@ LIBS	=
 NAME	=	pipex
 SRCDIR	=	src/
 OBJDIR	=	bin/
-FILES	=	pipex forkers pathers libft_imports
+FILES	=	pipex forkers pathers libft_imports addons
 
 SRCS	=	$(addprefix $(SRCDIR), $(addsuffix .c, $(FILES)))
 OBJS	=	$(addprefix $(OBJDIR), $(addsuffix .o, $(FILES)))

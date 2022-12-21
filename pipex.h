@@ -6,7 +6,7 @@
 /*   By: llord <llord@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/05 15:05:28 by llord             #+#    #+#             */
-/*   Updated: 2022/12/21 16:25:09 by llord            ###   ########.fr       */
+/*   Updated: 2022/12/21 17:26:24 by llord            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,8 +49,11 @@ void	get_paths(t_data *d);
 void	first_fork(t_data *d, pid_t *child);
 void	second_fork(t_data *d, pid_t *child);
 
-//from pipex
+//from addons
 void	free_array(char **array);
 void	close_fds(t_data *d);
+int		count_sections(char *str, char c);
+int		lento(char *s, char c);
+void	infanticider(t_data *d);
 
 #endif

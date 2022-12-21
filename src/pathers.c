@@ -6,36 +6,11 @@
 /*   By: llord <llord@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/20 15:22:55 by llord             #+#    #+#             */
-/*   Updated: 2022/12/21 16:02:59 by llord            ###   ########.fr       */
+/*   Updated: 2022/12/21 17:21:17 by llord            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../pipex.h"
-
-int	count_sections(char *str, char c)
-{
-	int	i;
-	int	n;
-
-	i = -1;
-	n = 1;
-	while (str[++i])
-	{
-		if (str[i] == c)
-			n++;
-	}
-	return (n);
-}
-
-int	lento(char *s, char c)
-{
-	int	i;
-
-	i = 0;
-	while (s[i] && s[i] != c)
-		i++;
-	return (i);
-}
 
 char	**ft_split(char *str, char c)
 {

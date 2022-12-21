@@ -6,7 +6,7 @@
 /*   By: llord <llord@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/20 15:22:57 by llord             #+#    #+#             */
-/*   Updated: 2022/12/21 16:17:22 by llord            ###   ########.fr       */
+/*   Updated: 2022/12/21 17:28:07 by llord            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,9 +28,6 @@ void	exec_with_paths(t_data *d, char *cmd)
 		free(cmdpath);
 	}
 	free_array(cmdargs);
-	free_array(d->paths);
-	close_fds(d);
-	free(d);
 }
 
 void	exec_first_cmd(t_data *d)
@@ -50,8 +47,9 @@ void	first_fork(t_data *d, pid_t *child)
 		write(STDERR_FILENO, "PID Error : Couldn't fork properly (1)\n", 39);
 	else if (*child == 0)
 	{
-		exec_first_cmd(d);
-		exit(EXIT_FAILURE);
+		if (d->cmd1[0] != '\0')
+			exec_first_cmd(d);
+		infanticider(d);
 	}
 }
 
@@ -72,7 +70,8 @@ void	second_fork(t_data *d, pid_t *child)
 		write(STDERR_FILENO, "PID Error : Couldn't fork properly (2)\n", 39);
 	else if (*child == 0)
 	{
-		exec_second_cmd(d);
-		exit(EXIT_FAILURE);
+		if (d->cmd2[0] != '\0')
+			exec_second_cmd(d);
+		infanticider(d);
 	}
 }

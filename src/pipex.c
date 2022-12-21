@@ -6,29 +6,11 @@
 /*   By: llord <llord@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/05 15:05:24 by llord             #+#    #+#             */
-/*   Updated: 2022/12/21 17:01:56 by llord            ###   ########.fr       */
+/*   Updated: 2022/12/21 17:21:53 by llord            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../pipex.h"
-
-void	close_fds(t_data *d)
-{
-	close(d->infile);
-	close(d->inpipe);
-	close(d->outpipe);
-	close(d->outfile);
-}
-
-void	free_array(char **array)
-{
-	int	i;
-
-	i = -1;
-	while (array[++i])
-		free(array[i]);
-	free(array);
-}
 
 int	initiate_data(t_data *d, char **argv, char **envp)
 {
