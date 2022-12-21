@@ -6,7 +6,7 @@
 /*   By: llord <llord@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/20 15:22:57 by llord             #+#    #+#             */
-/*   Updated: 2022/12/21 14:12:31 by llord            ###   ########.fr       */
+/*   Updated: 2022/12/21 16:17:22 by llord            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,12 +25,12 @@ void	exec_with_paths(t_data *d, char *cmd)
 		cmdpath = add_to_path(d->paths[i], cmdargs[0]);
 		if (!access(cmdpath, F_OK | X_OK))
 			execve(cmdpath, cmdargs, d->envp);
-		//free(cmdpath);
+		free(cmdpath);
 	}
-	//i = -1;
-	//while (cmdargs[++i])				//these free() do nothing to mem (cause of exit(?))
-		//free(cmdargs[i]);
-	//free(cmdargs);
+	free_array(cmdargs);
+	free_array(d->paths);
+	close_fds(d);
+	free(d);
 }
 
 void	exec_first_cmd(t_data *d)
@@ -51,8 +51,6 @@ void	first_fork(t_data *d, pid_t *child)
 	else if (*child == 0)
 	{
 		exec_first_cmd(d);
-		close(d->infile);
-		close(d->inpipe);
 		exit(EXIT_FAILURE);
 	}
 }
@@ -75,8 +73,6 @@ void	second_fork(t_data *d, pid_t *child)
 	else if (*child == 0)
 	{
 		exec_second_cmd(d);
-		close(d->outpipe);
-		close(d->outfile);
 		exit(EXIT_FAILURE);
 	}
 }

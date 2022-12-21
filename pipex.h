@@ -6,7 +6,7 @@
 /*   By: llord <llord@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/05 15:05:28 by llord             #+#    #+#             */
-/*   Updated: 2022/12/21 14:17:17 by llord            ###   ########.fr       */
+/*   Updated: 2022/12/21 16:25:09 by llord            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,12 +22,6 @@
 # include <errno.h>
 # include <sys/types.h>
 # include <sys/wait.h>
-
-typedef enum e_state
-{
-	STATE_ERR_INPUT = -1,
-	STATE_DEFAULT = 0,
-}			t_state;
 
 typedef struct s_data
 {
@@ -54,5 +48,9 @@ void	get_paths(t_data *d);
 //from forkers
 void	first_fork(t_data *d, pid_t *child);
 void	second_fork(t_data *d, pid_t *child);
+
+//from pipex
+void	free_array(char **array);
+void	close_fds(t_data *d);
 
 #endif

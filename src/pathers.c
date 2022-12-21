@@ -6,7 +6,7 @@
 /*   By: llord <llord@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/20 15:22:55 by llord             #+#    #+#             */
-/*   Updated: 2022/12/21 13:35:59 by llord            ###   ########.fr       */
+/*   Updated: 2022/12/21 16:02:59 by llord            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,7 +72,7 @@ char	*add_to_path(char *path, char *s)
 	int		offset;
 	char	*str;
 
-	str = malloc((lento(path, '\0') + lento(s, '\0')) * sizeof(char *));
+	str = ft_calloc((lento(path, '\0') + lento(s, '\0')), sizeof(char *));
 	if (!str)
 		return (NULL);
 	i = -1;

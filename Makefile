@@ -6,7 +6,7 @@
 #    By: llord <llord@student.42.fr>                +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/12/05 11:28:36 by llord             #+#    #+#              #
-#    Updated: 2022/12/21 15:10:30 by llord            ###   ########.fr        #
+#    Updated: 2022/12/21 16:58:18 by llord            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -33,7 +33,7 @@ WHITE = \033[0;97m
 # Special variables
 DEFAULT_GOAL: all
 .DELETE_ON_ERROR: $(NAME)
-.PHONY: all bonus clean fclean re run compare debug leaks tests
+.PHONY: all bonus clean fclean re run debug leaks tests
 
 # Hide calls
 export VERBOSE	= FALSE
@@ -64,6 +64,7 @@ FILES	=	pipex forkers pathers libft_imports
 SRCS	=	$(addprefix $(SRCDIR), $(addsuffix .c, $(FILES)))
 OBJS	=	$(addprefix $(OBJDIR), $(addsuffix .o, $(FILES)))
 
+CMD		=	./pipex tests/src.txt "grep a" "cat" tests/dst.txt
 
 #------------------------------------------------------------------------------#
 #                                 TARGETS                                      #
@@ -98,26 +99,21 @@ re: fclean all
 
 # Runs the resulting file
 run: all
-	@echo "$(BLUE)Starting the program...$(DEF_COLOR)"
-	$(HIDE)./pipex tests/src.txt "grep e" "wc -l" tests/dst.txt
-
-compare: all
-	@echo "$(RED)Starting the comparison...$(DEF_COLOR)"
-	$(HIDE)./pipex tests/src.txt "gre a" "cat" pipex.txt
-	$(HIDE)< tests/src.txt gre a | cat > real.txt
+	@echo "$(BLUE)Piping..$(DEF_COLOR)"
+	$(HIDE)$(CMD)
 
 debug: all
 	@echo "$(RED)Compiled for debugging!$(DEF_COLOR)"
 	$(HIDE)gcc -g -Wall -Werror -Wextra pipex.h src/pipex.c
 
 leaks: all
-	@echo "$(RED)Starting the leak checking...$(DEF_COLOR)"
-	$(HIDE)valgrind --leak-check=full --show-leak-kinds=all --trace-children=yes -s ./pipex tests/src.txt "grep e" "wc -l" tests/dst.txt
+	@echo "$(RED)Checking leaks...$(DEF_COLOR)"
+	$(HIDE)valgrind --leak-check=full --show-leak-kinds=all --trace-children=yes -s $(CMD)
 
 tests: all
 #	real pie created empty file created so long as dst path is non-empty (t1-t10)
 #	but crashes the following test in certain cases (t7-t13)
-	@echo "$(RED)Starting the complete leak checking...$(DEF_COLOR)"
+	@echo "$(RED)Starting the comparison tests...$(DEF_COLOR)"
 	@echo "\ntest 1"
 	$(HIDE)./pipex tests/src.txt "grep e" "cat" tests/p1.txt
 	$(HIDE)< tests/src.txt grep e | cat > tests/r1.txt
