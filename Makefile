@@ -6,14 +6,12 @@
 #    By: llord <llord@student.42.fr>                +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/12/05 11:28:36 by llord             #+#    #+#              #
-#    Updated: 2022/12/21 17:27:58 by llord            ###   ########.fr        #
+#    Updated: 2022/12/22 14:15:11 by llord            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-
-
 #------------------------------------------------------------------------------#
-#                                  COLOURS                                     #
+#                                   COLOURS                                    #
 #------------------------------------------------------------------------------#
 
 DEF_COLOR = \033[0;39m
@@ -25,9 +23,8 @@ CYAN = \033[0;96m
 BLUE = \033[0;94m
 GRAY = \033[0;90m
 WHITE = \033[0;97m
-
 #------------------------------------------------------------------------------#
-#                                  GENERICS                                    #
+#                                   GENERICS                                   #
 #------------------------------------------------------------------------------#
 
 # Special variables
@@ -43,9 +40,8 @@ else
 	HIDE = @
 endif
 
-
 #------------------------------------------------------------------------------#
-#                                 VARIABLES                                    #
+#                                  VARIABLES                                   #
 #------------------------------------------------------------------------------#
 
 # Compiler and flags
@@ -59,15 +55,16 @@ LIBS	=
 NAME	=	pipex
 SRCDIR	=	src/
 OBJDIR	=	bin/
-FILES	=	pipex forkers pathers libft_imports addons
+TSTDIR	=	tests/
+FILES	=	pipex forkers pathers addons libft_imports
 
 SRCS	=	$(addprefix $(SRCDIR), $(addsuffix .c, $(FILES)))
 OBJS	=	$(addprefix $(OBJDIR), $(addsuffix .o, $(FILES)))
 
-CMD		=	./pipex tests/src.txt "grep a" "cat" tests/dst.txt
+CMD		=	./pipex $(TSTDIR)src.txt "grep a" "cat" $(TSTDIR)dst.txt
 
 #------------------------------------------------------------------------------#
-#                                 TARGETS                                      #
+#                                   TARGETS                                    #
 #------------------------------------------------------------------------------#
 
 all: $(NAME)
@@ -111,45 +108,44 @@ leaks: all
 	$(HIDE)valgrind --leak-check=full --show-leak-kinds=all --trace-children=yes -s $(CMD)
 
 tests: all
-#	real pie created empty file created so long as dst path is non-empty (t1-t10)
-#	but crashes the following test in certain cases (t7-t13)
+#	real pipe creates empty files when an error occurs, so long as dst path is non-empty (t1-t10)
 	@echo "$(RED)Starting the comparison tests...$(DEF_COLOR)"
 	@echo "\ntest 1"
-	$(HIDE)./pipex tests/src.txt "grep e" "cat" tests/p1.txt
-	$(HIDE)< tests/src.txt grep e | cat > tests/r1.txt
+	$(HIDE)./pipex $(TSTDIR)src.txt "grep e" "cat" $(TSTDIR)p1.txt
+	$(HIDE)< $(TSTDIR)src.txt grep e | cat > $(TSTDIR)r1.txt
 	@echo "\ntest 2"
-	$(HIDE)./pipex "" "grep e" "cat" tests/p2.txt
-	$(HIDE)< "" grep e | cat > tests/r2.txt
+	$(HIDE)./pipex "" "grep e" "cat" $(TSTDIR)p2.txt
+	$(HIDE)< "" grep e | cat > $(TSTDIR)r2.txt
 	@echo "\ntest 3"
-	$(HIDE)./pipex nope.txt "grep e" "cat" tests/p3.txt
-	$(HIDE)< nope.txt grep e | cat > tests/r3.txt
+	$(HIDE)./pipex nope.txt "grep e" "cat" $(TSTDIR)p3.txt
+	$(HIDE)< nope.txt grep e | cat > $(TSTDIR)r3.txt
 	@echo "\ntest 4"
-	$(HIDE)./pipex tests/src.txt "" "cat" tests/p4.txt
-	$(HIDE)< tests/src.txt "" | cat > tests/r4.txt
+	$(HIDE)./pipex $(TSTDIR)src.txt "" "cat" $(TSTDIR)p4.txt
+	$(HIDE)< $(TSTDIR)src.txt "" | cat > $(TSTDIR)r4.txt
 	@echo "\ntest 5"
-	$(HIDE)./pipex tests/src.txt "grep" "cat" tests/p5.txt
-	$(HIDE)< tests/src.txt grep | cat > tests/r5.txt
+	$(HIDE)./pipex $(TSTDIR)src.txt "grep" "cat" $(TSTDIR)p5.txt
+	$(HIDE)< $(TSTDIR)src.txt grep | cat > $(TSTDIR)r5.txt
 	@echo "\ntest 6"
-	$(HIDE)./pipex tests/src.txt "gre e" "cat" tests/p6.txt
-	$(HIDE)< tests/src.txt gre e | cat > tests/r6.txt
+	$(HIDE)./pipex $(TSTDIR)src.txt "gre e" "cat" $(TSTDIR)p6.txt
+	$(HIDE)< $(TSTDIR)src.txt gre e | cat > $(TSTDIR)r6.txt
 	@echo "\ntest 7"
-	$(HIDE)./pipex tests/src.txt "grep e" "ca" tests/p7.txt
-#	$(HIDE)< tests/src.txt grep e | ca > tests/r7.txt
+	$(HIDE)./pipex $(TSTDIR)src.txt "grep e" "ca" $(TSTDIR)p7.txt
+#	$(HIDE)< $(TSTDIR)src.txt grep e | ca > $(TSTDIR)r7.txt
 	@echo "\ntest 8"
-	$(HIDE)./pipex tests/src.txt "grep e" "cat -a" tests/p8.txt
-#	$(HIDE)< tests/src.txt grep e | cat -a > tests/r8.txt
+	$(HIDE)./pipex $(TSTDIR)src.txt "grep e" "cat -a" $(TSTDIR)p8.txt
+#	$(HIDE)< $(TSTDIR)src.txt grep e | cat -a > $(TSTDIR)r8.txt
 	@echo "\ntest 9"
-	$(HIDE)./pipex tests/src.txt "grep e" "" tests/p9.txt
-#	$(HIDE) < tests/src.txt grep e | "" > tests/r9.txt
+	$(HIDE)./pipex $(TSTDIR)src.txt "grep e" "" $(TSTDIR)p9.txt
+#	$(HIDE) < $(TSTDIR)src.txt grep e | "" > $(TSTDIR)r9.txt
 	@echo "\ntest 10"
-	$(HIDE)./pipex tests/src.txt "" "" tests/p10.txt
-#	$(HIDE)< tests/src.txt "" | "" > tests/r10.txt
+	$(HIDE)./pipex $(TSTDIR)src.txt "" "" $(TSTDIR)p10.txt
+#	$(HIDE)< $(TSTDIR)src.txt "" | "" > $(TSTDIR)r10.txt
 	@echo "\ntest 11"
 	$(HIDE)./pipex "" "grep e" "cat" ""
 #	$(HIDE)< "" grep e | cat > ""
 	@echo "\ntest 12"
-	$(HIDE)./pipex tests/src.txt "grep e" "cat" ""
-#	$(HIDE)< tests/src.txt grep e | cat > ""
+	$(HIDE)./pipex $(TSTDIR)src.txt "grep e" "cat" ""
+#	$(HIDE)< $(TSTDIR)src.txt grep e | cat > ""
 	@echo "\ntest 13"
 	$(HIDE)./pipex "" "" "" ""
 #	$(HIDE)< "" "" | "" > ""
