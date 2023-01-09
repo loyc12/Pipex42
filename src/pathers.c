@@ -6,12 +6,13 @@
 /*   By: llord <llord@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/20 15:22:55 by llord             #+#    #+#             */
-/*   Updated: 2022/12/21 17:52:46 by llord            ###   ########.fr       */
+/*   Updated: 2023/01/09 13:53:45 by llord            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../pipex.h"
 
+//splits a given str around a given char
 char	**ft_split(char *str, char c)
 {
 	char	**output;
@@ -41,6 +42,7 @@ char	**ft_split(char *str, char c)
 	return (output);
 }
 
+//a specilized ft_join to add a cmd to a given path
 char	*add_to_path(char *path, char *s)
 {
 	int		i;
@@ -62,6 +64,7 @@ char	*add_to_path(char *path, char *s)
 	return (str);
 }
 
+//finds the PATHS line in env and copies it to the d struct
 void	get_paths(t_data *d)
 {
 	int		i;

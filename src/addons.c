@@ -6,12 +6,13 @@
 /*   By: llord <llord@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/21 17:20:57 by llord             #+#    #+#             */
-/*   Updated: 2022/12/21 17:24:23 by llord            ###   ########.fr       */
+/*   Updated: 2023/01/09 13:56:05 by llord            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../pipex.h"
 
+//closes every fd in the d struct
 void	close_fds(t_data *d)
 {
 	close(d->infile);
@@ -20,6 +21,7 @@ void	close_fds(t_data *d)
 	close(d->outfile);
 }
 
+//frees a given array properly
 void	free_array(char **array)
 {
 	int	i;
@@ -30,6 +32,7 @@ void	free_array(char **array)
 	free(array);
 }
 
+//counts how many sections result from spliting a str around a char
 int	count_sections(char *str, char c)
 {
 	int	i;
@@ -45,6 +48,7 @@ int	count_sections(char *str, char c)
 	return (n);
 }
 
+//finds the lenght to a given char
 int	lento(char *s, char c)
 {
 	int	i;
@@ -55,6 +59,7 @@ int	lento(char *s, char c)
 	return (i);
 }
 
+//properly closes things and kills the child process
 void	infanticider(t_data *d)
 {
 	free_array(d->paths);

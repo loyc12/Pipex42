@@ -6,17 +6,18 @@
 /*   By: llord <llord@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/05 15:05:24 by llord             #+#    #+#             */
-/*   Updated: 2022/12/21 17:21:53 by llord            ###   ########.fr       */
+/*   Updated: 2023/01/09 13:49:09 by llord            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../pipex.h"
 
+//checks for basic error cases and initializes d struct
 int	initiate_data(t_data *d, char **argv, char **envp)
 {
 	if (!argv[1][0] || !argv[2][0] || !argv[3][0] || !argv[4][0])
 		write(2, "Input Error : Empty function argument(s)\n", 41);
-	if (!access(argv[1], F_OK) && access(argv[1], R_OK))				//not "else if" cause need to emulate pipe
+	if (!access(argv[1], F_OK) && access(argv[1], R_OK))				//not "else if" because pipe works that way normaly
 		write(2, "File Error : Cannot read in file (1)\n", 37);
 	else if (!access(argv[4], F_OK) && access(argv[4], W_OK))
 		write(2, "File Error : Cannot write in file (2)\n", 38);
@@ -25,7 +26,7 @@ int	initiate_data(t_data *d, char **argv, char **envp)
 		d->infile = open(argv[1], O_RDONLY);
 		d->cmd1 = argv[2];
 		d->cmd2 = argv[3];
-		d->outfile = open(argv[4], O_CREAT | O_RDWR | O_TRUNC, 0666);	//effectively 0644 cause umask
+		d->outfile = open(argv[4], O_CREAT | O_RDWR | O_TRUNC, 0666);	//effectively 0644 because of umask
 		d->envp = envp;
 		get_paths(d);
 		return (EXIT_SUCCESS);
@@ -33,6 +34,7 @@ int	initiate_data(t_data *d, char **argv, char **envp)
 	return (EXIT_FAILURE);
 }
 
+//pipes from data in d struct
 void	pipex(t_data *d)
 {
 	int		pipends[2];
@@ -50,6 +52,7 @@ void	pipex(t_data *d)
 	waitpid(second_child, &status, 0);
 }
 
+//entry point
 int	main(int argc, char **argv, char **envp)
 {
 	t_data	*d;

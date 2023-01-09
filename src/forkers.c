@@ -6,12 +6,13 @@
 /*   By: llord <llord@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/20 15:22:57 by llord             #+#    #+#             */
-/*   Updated: 2022/12/21 17:28:07 by llord            ###   ########.fr       */
+/*   Updated: 2023/01/09 13:52:04 by llord            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../pipex.h"
 
+//tries to execute a given cmd with all env paths
 void	exec_with_paths(t_data *d, char *cmd)
 {
 	char	**cmdargs;
@@ -30,6 +31,7 @@ void	exec_with_paths(t_data *d, char *cmd)
 	free_array(cmdargs);
 }
 
+//settups the in/out files and calls the execution for the first function
 void	exec_first_cmd(t_data *d)
 {
 	dup2(d->infile, STDIN_FILENO);
@@ -40,6 +42,7 @@ void	exec_first_cmd(t_data *d)
 	write(STDERR_FILENO, "Command Error : Invalid command (1)\n", 36);
 }
 
+//tries to fork for the first cmd
 void	first_fork(t_data *d, pid_t *child)
 {
 	*child = fork();
@@ -53,6 +56,7 @@ void	first_fork(t_data *d, pid_t *child)
 	}
 }
 
+//settups the in/out files and calls the execution for the second function
 void	exec_second_cmd(t_data *d)
 {
 	dup2(d->outpipe, STDIN_FILENO);
@@ -63,6 +67,7 @@ void	exec_second_cmd(t_data *d)
 	write(STDERR_FILENO, "Command Error : Invalid command (2)\n", 36);
 }
 
+//tries to fork for the second cmd
 void	second_fork(t_data *d, pid_t *child)
 {
 	*child = fork();
